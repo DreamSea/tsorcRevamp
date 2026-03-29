@@ -121,7 +121,8 @@ namespace tsorcRevamp.Projectiles
 
             Vector2 unit = Projectile.rotation.ToRotationVector2();
             Vector2 endpoint = Projectile.Center + trueSize * (unit * (400 + (size / 6f)));
-            DelegateMethods.v3_1 = Color.Blue.ToVector3();
+//            DelegateMethods.v3_1 = Color.Blue.ToVector3();
+            DelegateMethods.v3_1 = Color.Purple.ToVector3(); // this is tile illumination color through walls
             Utils.PlotTileLine(Projectile.Center, endpoint, 32, DelegateMethods.CastLight);
             DelegateMethods.tilecut_0 = TileCuttingContext.AttackProjectile;
             DelegateMethods.tileCutIgnore = TileID.Sets.TileCutIgnore.None;

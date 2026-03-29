@@ -79,7 +79,7 @@ float4 PixelShaderFunction(float4 sampleColor : COLOR0, float2 coords : TEXCOORD
     }
 
     //Scale 'intensity' into the RGB channels. Values are fine-tuned to turn noise into a fire-like effect.
-    return float4(pow(intensity, 6) * dist * dist, pow(intensity, 4.8) * dist, pow(intensity, 4.5), 1) * 100 * opacity;
+    return float4(pow(intensity, 4.5), pow(intensity, 4.5) * 0.9, pow(intensity, 4.8) * dist, 1) * 100 * opacity;
 }
 
 technique SyntheticBlizzard
