@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using Terraria;
 using Terraria.Graphics.Shaders;
 using Terraria.ID;
@@ -70,7 +71,8 @@ namespace tsorcRevamp.Projectiles.Melee.Spears
 
             if (Main.rand.NextBool(3))
             {
-                int dust = Dust.NewDust(Projectile.position, Projectile.width, Projectile.height, 90, Projectile.velocity.X * -0.2f, Projectile.velocity.Y * -0.2f, 70, default(Color), 1.3f);
+                Vector2 spearTipOffset = new Vector2(185 * MathF.Cos(Projectile.velocity.ToRotation()), 185 * MathF.Sin(Projectile.velocity.ToRotation()));
+                int dust = Dust.NewDust(Projectile.position + spearTipOffset, Projectile.width, Projectile.height, 90, Projectile.velocity.X * -0.2f, Projectile.velocity.Y * -0.2f, 70, default(Color), 1.3f);
                 Main.dust[dust].noGravity = true;
             }
         }
@@ -83,20 +85,37 @@ namespace tsorcRevamp.Projectiles.Melee.Spears
             }
         }
 
+        public override void ModifyDamageHitbox(ref Rectangle hitbox)
+        {
+            // Move damage hitbox to where spear tip is
+            double spearTipOffsetX = 185 * Math.Cos(Projectile.velocity.ToRotation());
+            double spearTipOffsetY = 185 * Math.Sin(Projectile.velocity.ToRotation());
+            hitbox.Offset((int)spearTipOffsetX, (int)spearTipOffsetY);
+        }
+
+		public override void CutTiles()
+		{
+			// Move vine/pot breaking to where spear tip is
+            Vector2 spearTipOffsetStarting = new Vector2(170 * MathF.Cos(Projectile.velocity.ToRotation()), 170 * MathF.Sin(Projectile.velocity.ToRotation()));
+            Vector2 spearTipOffsetEnding = new Vector2(200 * MathF.Cos(Projectile.velocity.ToRotation()), 200 * MathF.Sin(Projectile.velocity.ToRotation()));
+			Utils.PlotTileLine(Projectile.Center + spearTipOffsetStarting, Projectile.Center + spearTipOffsetEnding, 70, DelegateMethods.CutTiles);
+		}
+
         private void Explode()
         {
             int explosionRadius = 230;
+            Vector2 spearTipOffset = new Vector2(185 * MathF.Cos(Projectile.velocity.ToRotation()), 185 * MathF.Sin(Projectile.velocity.ToRotation()));
 
             for (int i = 0; i < 150; i++)
             {
                 Vector2 direction = Main.rand.NextVector2Circular(1f, 1f).SafeNormalize(Vector2.UnitX);
                 float speed = Main.rand.NextFloat(5.5f, 19f);
 
-                int dust1 = Dust.NewDust(Projectile.position, Projectile.width, Projectile.height, 90, 0f, 0f, 70, default, 1.55f);
+                int dust1 = Dust.NewDust(Projectile.position + spearTipOffset, Projectile.width, Projectile.height, 90, 0f, 0f, 70, default, 1.55f);
                 Main.dust[dust1].velocity = direction * speed;
                 Main.dust[dust1].noGravity = true;
 
-                int dust2 = Dust.NewDust(Projectile.position, Projectile.width, Projectile.height, 219, 0f, 0f, 70, default, 1.95f);
+                int dust2 = Dust.NewDust(Projectile.position + spearTipOffset, Projectile.width, Projectile.height, 219, 0f, 0f, 70, default, 1.95f);
                 Main.dust[dust2].velocity = direction * (speed * 1.2f);
                 Main.dust[dust2].noGravity = true;
             }
@@ -104,7 +123,7 @@ namespace tsorcRevamp.Projectiles.Melee.Spears
 
             foreach (NPC npc in Main.npc)
             {
-                if (npc.active && !npc.friendly && npc.Distance(Projectile.Center) <= explosionRadius)
+                if (npc.active && !npc.friendly && npc.Distance(Projectile.Center + spearTipOffset) <= explosionRadius)
                 {
         
                     int explosionDamage = (int)(Projectile.damage * 0.5f);
@@ -113,7 +132,7 @@ namespace tsorcRevamp.Projectiles.Melee.Spears
                     {
                         Damage = explosionDamage,
                         Knockback = 2f,
-                        HitDirection = Projectile.Center.X < npc.Center.X ? 1 : -1
+                        HitDirection = Projectile.Center.X + spearTipOffset.X < npc.Center.X ? 1 : -1
                     };
 
                     npc.StrikeNPC(hitInfo, fromNet: false);

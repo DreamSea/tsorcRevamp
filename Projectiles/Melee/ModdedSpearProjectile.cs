@@ -5,6 +5,7 @@ using Terraria.ModLoader;
 
 namespace tsorcRevamp.Projectiles.Melee
 {
+    // placeholder marker / commit to show ModdedSpearProjectile
     public abstract class ModdedSpearProjectile : ModProjectile
     {
         // Define the range of the Spear Projectile. These are overridable properties, in case you'll want to make a class inheriting from Projectile one.
